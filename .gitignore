@@ -1,2 +1,3 @@
 *.Rproj*
 *tmp*
+.Rproj.user

@@ -21,14 +21,16 @@ import re
 driver = webdriver.Chrome()
 driver.maximize_window()
 
-url_str = "https://www.homedepot.com/p/Bosch-300-Series-Front-Control-Tall-Tub-Dishwasher-in-Stainless-Steel-with-Stainless-Steel-Tub-and-3rd-Rack-44dBA-SHEM63W55N/304644690"
+#url_str = "https://www.homedepot.com/p/Bosch-300-Series-Front-Control-Tall-Tub-Dishwasher-in-Stainless-Steel-with-Stainless-Steel-Tub-and-3rd-Rack-44dBA-SHEM63W55N/304644690"
+url_str = "https://www.homedepot.com/p/Bosch-500-Series-Top-Control-Tall-Tub-Pocket-Handle-Dishwasher-in-Stainless-Steel-with-Stainless-Steel-Tub-AutoAir-44dBA-SHPM65Z55N/310500129"
+#url_str = "https://www.homedepot.com/p/GE-Adora-Top-Control-Tall-Tub-Dishwasher-in-Stainless-Steel-with-Stainless-Steel-Tub-and-Steam-Cleaning-48-dBA-DDT700SSNSS/310496066"
 
 driver.get(url_str)
 
 
 rev_html2_l = []
 
-N = 250
+N = 200
 
 for i in range(N):
     
@@ -72,7 +74,9 @@ for i, rev_html2 in enumerate(rev_html2_l):
     
 rev_info_all_df = pd.concat(rev_info_df_l)
 
-rev_info_all_df.to_csv('rev_info.csv', index = False)
+rev_info_all_df.to_csv('Documents/bosch_500_rev_info.csv', index = False)
+
+driver.close()
 
 
 

@@ -6,13 +6,15 @@ library(tidyr)
 library(topicmodels)
 library(ggplot2)
 
-df = read.csv("data/rev_info_bosch_dw_SHEM63W55N.csv", stringsAsFactors = FALSE)
+#df = read.csv("data/rev_info_bosch_dw_SHEM63W55N.csv", stringsAsFactors = FALSE)
+#df = read.csv("data/rev_info_ge_dw_DDT700SSNSS.csv", stringsAsFactors = FALSE)
+df = read.csv("data/rev_info_bosch500_dw_SHPM65Z55N.csv", stringsAsFactors = FALSE)
 
 df = df %>% mutate(revid = seq(1, nrow(df)))
 
 df = df %>% mutate(rating2 = rating / 100 * 5)
 
-df %>% count(rating, rating2)
+df %>% count(rating, rating2) %>% mutate(n_pct = round(n / sum(n) * 100,1))
 
 df = df %>% mutate(revdate2 = as_date(revdate, format = "%B %d, %Y"))
 df = df %>% mutate(revmnth = floor_date(revdate2), revyr = year(revdate2))
@@ -26,15 +28,16 @@ df2 = df %>% select(revid, rating2, txt) %>% unnest_tokens(word, txt)
 data(stop_words)
 df2 = df2 %>% anti_join(stop_words)
 
-xtra_stop_words = c("dishwasher", "review", "promotion", "bosch", "collected")
+xtra_stop_words = c("dishwasher", "review", "promotion", "bosch", "collected", "ge", "home", "depot", "dishes")
 df2 = df2 %>% filter(!(word %in% xtra_stop_words))
 
-df2 %>% filter(rating2 == 1) %>% count(word, sort = TRUE) %>% head(50)
+df2 %>% count(word, sort = TRUE) %>% head(50)
+df2 %>% filter(rating2 == 2) %>% count(word, sort = TRUE) %>% head(50)
 
 df2_leak = df2 %>% filter(grepl("leak", word)) %>% distinct(revid) 
 df2_leak = inner_join(df, df2_leak, by = "revid") %>% select(txt, rating2)
 df2_leak %>% count(rating2)
-qc_chk = df2_leak %>% filter(rating2 == 2)
+qc_chk = df2_leak %>% filter(rating2 == 5)
 
 dtm = df2 %>% count(revid, word) %>% cast_dtm(revid, word, n)
 
@@ -64,3 +67,6 @@ rev_documents %>% count(topic)
 rev_documents %>% count(topic, rating2) %>% group_by(rating2) %>%
          mutate(n_pct = n/sum(n)) %>% select(-n) %>%
          pivot_wider(names_from = rating2, values_from = n_pct) %>% print(width = Inf)
+
+qc_chk = rev_documents %>% filter(topic == 3, gamma >= 0.8) %>%
+            inner_join(df %>% select(revid, txt), by = "revid")
